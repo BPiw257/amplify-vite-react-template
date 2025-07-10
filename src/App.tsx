@@ -12,7 +12,14 @@ function App() {
   const { user, signOut } = useAuthenticator();
   
   function deleteTodo(id: string) {
-    client.models.Todo.delete({ id })
+    client.models.Todo.delete({ id });
+  }
+
+  function editTodo(todo: Schema["Todo"]["type"]) {
+    const newContent = window.prompt("Edit todo content", todo.content ?? "");
+    if (typeof newContent === "string" && newContent !== "" && newContent !== todo.content) {
+      client.models.Todo.update({ id: todo.id, content: newContent });
+    }
   }
 
   const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
@@ -34,12 +41,10 @@ function App() {
   <button onClick={createTodo}>+ new</button>
   <ul>
     {todos.map((todo => (
-      <li
-        onClick={() => deleteTodo(todo.id)}
-        key={todo.id}
-        style={{ cursor: "pointer" }}
-      >
+      <li key={todo.id} style={{ cursor: "pointer" }}>
         {todo.content}
+        <button onClick={() => editTodo(todo)} style={{ marginLeft: 8 }}>Edit</button>
+        <button onClick={() => deleteTodo(todo.id)} style={{ marginLeft: 16 }}>Delete</button>
         <br />
         <small>
           Created: {todo.createdAt ? new Date(todo.createdAt).toLocaleString() : "Unknown"}
